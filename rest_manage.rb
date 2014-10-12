@@ -86,7 +86,7 @@ class Restaurant
 	end
 	
 	def inform_no_seats
-		puts "Sorry no seats avaiable for that number of seats"
+		puts "Sorry no seats avaiable"
 		ask
 	end
 
