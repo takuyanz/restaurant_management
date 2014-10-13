@@ -19,7 +19,14 @@ class Restaurant
 			("a".."e").each do |table|
 				@db[table] = ""
 			end
+
+			@db["sushi"] = 600
+			@db["curry"] = 1000
+			@db["karaage"] = 300
+			@db["ramen"] = 1200
 		end
+
+
 
 		read_table
 		welcome
@@ -34,7 +41,7 @@ class Restaurant
 
 		num = gets.chomp
 			
-		if (["1","2", "3", "4"]).include? num
+		if (["1","2", "3", "4", "5"]).include? num
 			case num 
 			when "1"
 				puts "\n How many customers? Please type in a number. Type '99' to go back".green
@@ -52,10 +59,38 @@ class Restaurant
 				take_order
 			when "4"
 				show_orders
+			when "5"
+				check
 			end
 		else 
 			wrong_input
 			show_options
+		end
+	end
+
+	def check
+		puts "Which table? (a,b,c,d,e)"
+		table = gets.chomp
+			
+		if ["a","b","c","d","e"].include? table
+			@db.transaction do
+				
+				totalprices = 0
+				orders = ""
+						
+				
+				
+				puts "Each price: "
+				puts "How much in Total?"
+				
+
+				#get rid of customers
+				#clean_table()
+				welcome
+			end
+		else
+			wrong_input
+			check
 		end
 	end
 	
@@ -65,7 +100,7 @@ class Restaurant
 		a = gets.chomp
 
 		if ['a','b','c','d','e'].include? a 
-			order = ""
+			order = []
 			end_order = false
 
 			while end_order == false do
@@ -77,15 +112,15 @@ class Restaurant
 				puts " 9. end"
 			
 				input = gets.chomp
-
+				
 				if input == "1"
-					order = order + "Sushi "
+					order << "Sushi"
 				elsif input == "2"
-					order = order + "Curry "
+					order << "Curry"
 				elsif input == "3"
-					order = order + "Karaage "
+					order << "Karaage"
 				elsif input == "4"
-					order = order + "Ramen "
+					order << "Ramen"
 				elsif input == "9" 
 					end_order = true
 				end
@@ -105,15 +140,17 @@ class Restaurant
 	def show_orders
 		
 		@db.transaction do
-			('a'..'e').each do |table_alpha|
-				order = 
-					if @db[table_alpha] 
-						@db[table_alpha]
-					else 
-						"No Order"
+			('a'..'e').each do |table|
+			
+				if @db[table].instance_of?(Array)
+					print "\n Table #{table}:"
+					@db[table].each do |menu|
+						print " #{menu} ".purple
 					end
-
-				puts " Table #{table_alpha}: " + order.purple
+				else 
+					print "\n Table #{table}: "
+					print "No Order"
+				end
 			end
 		end
 
@@ -125,6 +162,7 @@ class Restaurant
     puts " 2. Display Situation"
 		puts " 3. Take Order"
 		puts " 4. Show Orders"
+		puts " 5. Check"
 		print "\n You are selecting: "
 	end
 
