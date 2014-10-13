@@ -14,25 +14,47 @@ class Restaurant
 		] 
 
 		read_table
-		ask
+		welcome
 	end
 
-	def ask
-		puts "\n What would you like to do?"
-		puts " 1. New Customers"
-		puts " 2. Display Situation"
+	def welcome
+		puts "\n ----------------------------".neon
+		puts " What would you like to do?".green
+		puts ""
+		show_options
 
 		num = gets.chomp
-		
-		case num 
-		when "1"
-			puts " How many customers?"
-			num_cus = gets.chomp.to_i
+			
+		if (["1","2"]).include? num
 
-			find_out_seats(num_cus)
-		when "2"
-			display_situation
+			case num 
+			when "1"
+				puts "\n How many customers? Please type in a number".green
+				print " "
+				num_cus = gets.chomp.to_i
+
+				find_out_seats(num_cus)
+			when "2"
+				display_situation
+			end
+		
+		else 
+			wrong_input
+			show_options
 		end
+	end
+
+	def wrong_input
+		puts ""
+		puts " Please select a number".red
+		puts ""
+	end
+
+	def show_options
+		puts " 1. New Customers"
+    puts " 2. Display Situation"
+		puts ""
+		print " You are selecting: "
 	end
 
 	def read_table	
@@ -48,16 +70,14 @@ class Restaurant
 	def find_out_seats(num_cus)
 			
 		@tables.each do |table|
-			if table.length >= num_cus then 
+			if table.length >= num_cus
 				if enough_seats(table, num_cus)					
-					n = 0
+					n = 1
 					table.each do |i|
-						inform_seats_available if n == num_cus
 						@table_now[i] = "X"
+						inform_seats_available(table, num_cus) if n == num_cus
 						n += 1
 					end
-				else
-					inform_no_seats
 				end
 			end
 		end
@@ -65,44 +85,46 @@ class Restaurant
 	end
 	
 	def enough_seats(table, num_cus)
-		total = 0
+	
 		
 		table.each do |t|
-			if @table_now[t] == " "
-				total += 1
+			if @table_now[t] == "X"
+				return false
 			end
 		end
-
-		if total >= num_cus
-			return true
-		else
-			return false
-		end
+		return true
 	end
 
-	def inform_seats_available
-		puts "Take Customers to ???"
-		ask
+	def inform_seats_available(table, num_cus)
+		puts "\n Take Customers to seats:"
+		
+		n = 1
+		table.each do |t|	
+			print "#{t} "	
+			welcome if n == num_cus
+			
+			n += 1
+		end
 	end
 	
 	def inform_no_seats
-		puts "Sorry no seats avaiable"
-		ask
+		puts " Sorry no seats avaiable".red
+		welcome
 	end
 
 	def display_situation
 		
-		puts "-------------------"
+		puts " -------------------"
 		puts ""
-		puts "Table 1(3 people): #{@table_now[:a1]}#{@table_now[:a2]}#{@table_now[:a3]}"
-		puts "Table 2(3 people): #{@table_now[:b1]}#{@table_now[:b2]}#{@table_now[:b3]}"
-		puts "Table 3(3 people): #{@table_now[:c1]}#{@table_now[:c2]}#{@table_now[:c3]}"
-		puts "Table 4(4 people): #{@table_now[:d1]}#{@table_now[:d2]}#{@table_now[:d3]}#{@table_now[:d4]}"
-		puts "Table 5(2 people): #{@table_now[:e1]}#{@table_now[:e2]}"
+		puts " Table 1(3 people): #{@table_now[:a1]}#{@table_now[:a2]}#{@table_now[:a3]}"
+		puts " Table 2(3 people): #{@table_now[:b1]}#{@table_now[:b2]}#{@table_now[:b3]}"
+		puts " Table 3(3 people): #{@table_now[:c1]}#{@table_now[:c2]}#{@table_now[:c3]}"
+		puts " Table 4(4 people): #{@table_now[:d1]}#{@table_now[:d2]}#{@table_now[:d3]}#{@table_now[:d4]}"
+		puts " Table 5(2 people): #{@table_now[:e1]}#{@table_now[:e2]}"
 		puts ""
-		puts "-------------------"	
+		puts " -------------------"	
 	
-		ask
+		welcome
 	end
 end
 
