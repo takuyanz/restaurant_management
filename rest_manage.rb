@@ -1,5 +1,6 @@
 # coding: utf-8
 require "color_text"
+require "pstore"
 
 class Restaurant
 
@@ -12,12 +13,20 @@ class Restaurant
 			[:d1, :d2, :d3, :d4],
 			[:e1, :e2]
 		] 
+		
+		@db = PStore.new("orders")
+		@db.transaction do 
+			("a".."e").each do |table|
+				@db[table] = ""
+			end
+		end
 
 		read_table
 		welcome
 	end
 
 	def welcome
+		puts ""
 		puts "\n ----------------------------".neon
 		puts " What would you like to do?".green
 		puts ""
@@ -25,36 +34,98 @@ class Restaurant
 
 		num = gets.chomp
 			
-		if (["1","2"]).include? num
-
+		if (["1","2", "3", "4"]).include? num
 			case num 
 			when "1"
-				puts "\n How many customers? Please type in a number".green
+				puts "\n How many customers? Please type in a number. Type '99' to go back".green
 				print " "
 				num_cus = gets.chomp.to_i
 
-				find_out_seats(num_cus)
+				if num_cus == 99
+					welcome
+				else
+					find_out_seats(num_cus)
+				end
 			when "2"
 				display_situation
+			when "3"
+				take_order
+			when "4"
+				show_orders
 			end
-		
 		else 
 			wrong_input
 			show_options
 		end
 	end
+	
+	def take_order
+		puts "\n Type in an alphabet of the table (a,b,c,d,e)"
+		print " "
+		a = gets.chomp
 
-	def wrong_input
-		puts ""
-		puts " Please select a number".red
-		puts ""
+		if ['a','b','c','d','e'].include? a 
+			order = ""
+			end_order = false
+
+			while end_order == false do
+				puts "\n Select numbers"
+				puts " 1. Sushi"
+				puts " 2. Curry"
+				puts " 3. Karaage"
+				puts " 4. Ramen"
+				puts " 9. end"
+			
+				input = gets.chomp
+
+				if input == "1"
+					order = order + "Sushi "
+				elsif input == "2"
+					order = order + "Curry "
+				elsif input == "3"
+					order = order + "Karaage "
+				elsif input == "4"
+					order = order + "Ramen "
+				elsif input == "9" 
+					end_order = true
+				end
+			end
+		else
+			wrong_input
+			take_order
+		end
+
+		@db.transaction do
+			@db[a] = order
+		end
+		
+		welcome
+	end
+
+	def show_orders
+		
+		@db.transaction do
+			('a'..'e').each do |table_alpha|
+				order = 
+					if @db[table_alpha] 
+						@db[table_alpha]
+					else 
+						"No Order"
+					end
+
+				puts " Table #{table_alpha}: " + order.purple
+			end
+		end
+
+		welcome
 	end
 
 	def show_options
 		puts " 1. New Customers"
     puts " 2. Display Situation"
-		puts ""
-		print " You are selecting: "
+		puts " 3. Take Order"
+		puts " 4. Show Orders"
+		print "\n You are selecting: "
 	end
 
 	def read_table	
@@ -85,7 +156,6 @@ class Restaurant
 	end
 	
 	def enough_seats(table, num_cus)
-	
 		
 		table.each do |t|
 			if @table_now[t] == "X"
@@ -96,7 +166,7 @@ class Restaurant
 	end
 
 	def inform_seats_available(table, num_cus)
-		puts "\n Take Customers to seats:"
+		print "\n Take Customers to seats:"
 		
 		n = 1
 		table.each do |t|	
@@ -108,24 +178,32 @@ class Restaurant
 	end
 	
 	def inform_no_seats
-		puts " Sorry no seats avaiable".red
+		puts "\n Sorry no seats avaiable".red
 		welcome
 	end
 
 	def display_situation
 		
-		puts " -------------------"
 		puts ""
-		puts " Table 1(3 people): #{@table_now[:a1]}#{@table_now[:a2]}#{@table_now[:a3]}"
-		puts " Table 2(3 people): #{@table_now[:b1]}#{@table_now[:b2]}#{@table_now[:b3]}"
-		puts " Table 3(3 people): #{@table_now[:c1]}#{@table_now[:c2]}#{@table_now[:c3]}"
-		puts " Table 4(4 people): #{@table_now[:d1]}#{@table_now[:d2]}#{@table_now[:d3]}#{@table_now[:d4]}"
-		puts " Table 5(2 people): #{@table_now[:e1]}#{@table_now[:e2]}"
+		puts " = = = = = = = = = = = = = =".yellow
 		puts ""
-		puts " -------------------"	
+		puts " Table a(3 people): #{@table_now[:a1]}#{@table_now[:a2]}#{@table_now[:a3]}"
+		puts " Table b(3 people): #{@table_now[:b1]}#{@table_now[:b2]}#{@table_now[:b3]}"
+		puts " Table c(3 people): #{@table_now[:c1]}#{@table_now[:c2]}#{@table_now[:c3]}"
+		puts " Table d(4 people): #{@table_now[:d1]}#{@table_now[:d2]}#{@table_now[:d3]}#{@table_now[:d4]}"
+		puts " Table e(2 people): #{@table_now[:e1]}#{@table_now[:e2]}"
+		puts ""
+		puts " = = = = = = = = = = = = = =".yellow
 	
 		welcome
 	end
+
+	def wrong_input
+		puts ""
+		puts " Error: wrong input".red
+		puts ""
+	end
+
 end
 
 #execute!
