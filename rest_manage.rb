@@ -26,8 +26,6 @@ class Restaurant
 			@db["ramen"] = 1200
 		end
 
-
-
 		read_table
 		welcome
 	end
@@ -69,31 +67,45 @@ class Restaurant
 	end
 
 	def check
-		puts "Which table? (a,b,c,d,e)"
+		puts " Which table? (a,b,c,d,e)"
+		puts " Table: "
 		table = gets.chomp
 			
 		if ["a","b","c","d","e"].include? table
+			totalprice = 0
+				
+			puts "\n Orders:"
 			@db.transaction do
-				
-				totalprices = 0
-				orders = ""
-						
-				
-				
-				puts "Each price: "
-				puts "How much in Total?"
-				
-
-				#get rid of customers
-				#clean_table()
-				welcome
+				@db[table].each do |menu|
+					puts " #{menu}: #{@db[menu.downcase]} yen"
+					totalprice = totalprice + @db[menu.downcase].to_i
+				end
 			end
+			puts " Total Price: #{totalprice} yen"
+				
+			puts "\n Has it been paid? (y/n)".red
+			yesno = gets.chomp
+
+			if yesno == "y" 
+				clean_table(table)
+				puts "Thank you".yellow
+				welcome
+			else
+				puts " Call the police, Customers ran away"
+			end	
 		else
 			wrong_input
 			check
 		end
 	end
-	
+
+	def clean_table(table_alpha)
+		seats = @table_now.keys.select {|seat| seat.to_s.include? table_alpha}
+		seats.each do |seat|
+			@table_now[seat.to_sym] = ""
+		end
+	end
+
 	def take_order
 		puts "\n Type in an alphabet of the table (a,b,c,d,e)"
 		print " "
@@ -110,7 +122,7 @@ class Restaurant
 				puts " 3. Karaage"
 				puts " 4. Ramen"
 				puts " 9. end"
-			
+				puts " Order: "
 				input = gets.chomp
 				
 				if input == "1"
@@ -208,7 +220,7 @@ class Restaurant
 		
 		n = 1
 		table.each do |t|	
-			print "#{t} "	
+			print "#{t} ".neon	
 			welcome if n == num_cus
 			
 			n += 1
